@@ -1,0 +1,10 @@
+numpy>=1.24.0
+scikit-learn>=1.3.0
+sentence-transformers>=2.2.2
+faiss-cpu>=1.7.4
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+lxml>=4.9.0  # For better HTML parsing performance
+ctransformers>=0.2.24  # For running Mistral 7B locally
+pytest>=7.4.0  # For testing
+pytest-cov>=4.1.0  # For test coverage reporting 

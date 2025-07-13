@@ -1,0 +1,761 @@
+1. Disk Space Full
+Check disk usage with df -h. Use du -sh * in directories like /var, /tmp, /home to find large folders. Clear logs (/var/log), caches, or unused packages. Remove orphaned Docker images with docker system prune. Consider using ncdu for an interactive disk usage viewer.
+
+2. High CPU Usage
+Run top or htop to identify the process using high CPU. Investigate whether it's expected (e.g., a running script) or a runaway process. If needed, kill it with kill -9 PID. Long-term, consider using nice, cpulimit, or scheduling intensive tasks during off-hours. Check for stuck cron jobs or runaway containers.
+
+3. Memory Leaks
+Use free -m and top to monitor memory. Use smem or ps aux --sort=-%mem to find the top memory consumers. If buffers/cache are high, run sync; echo 3 > /proc/sys/vm/drop_caches to drop them (only temporarily useful). Long-term fix: optimize the app or increase RAM.
+
+4. Permission Denied Errors
+Use ls -l to check file permissions. Use chmod to set correct permissions and chown to set proper ownership. For scripts, ensure executable bit is set (chmod +x script.sh). Use sudo when elevated permissions are required. Avoid giving global write access (chmod 777) unless in temporary test environments.
+
+5. Service Not Starting
+Use systemctl status service or journalctl -xe to get logs. Check configuration files for syntax errors. Ensure required ports aren’t already used (netstat -tulnp). Restart the service with systemctl restart. If using containers, inspect container logs for misconfiguration.
+
+6. Network Unreachable
+Check connectivity with ping, ip a, ip r, and traceroute. Ensure network interfaces are up with ip link set eth0 up. Verify DNS resolution with dig, host, or nslookup. Restart networking service (systemctl restart networking or NetworkManager). Check firewall rules with iptables -L or ufw status.
+
+7. SSH Connection Timeout
+Check /etc/ssh/sshd_config for PermitRootLogin, AllowUsers, etc. Ensure port 22 is open in firewall and reachable. Restart SSH daemon with systemctl restart sshd. Use ssh -v for verbose debugging. Consider enabling KeepAlive to maintain sessions.
+
+8. Crontab Not Running
+Use crontab -e to verify entries. Ensure the command uses absolute paths. Check logs (/var/log/cron or journalctl -u cron) for errors. Use MAILTO= or redirect output to a log file to see failures. Use run-parts for scripts in cron directories.
+
+9. File System Read-Only
+Check with mount | grep ro. This often happens after a disk or filesystem error. Run dmesg for hardware or FS errors. Remount as read-write (mount -o remount,rw /mount/point). If FS corruption, run fsck in single-user or rescue mode.
+
+10. Slow Boot Time
+Use systemd-analyze blame to see slow services. Disable unused services with systemctl disable. Check for device wait errors in dmesg. Look at journal logs with journalctl -b. Update drivers if hardware-related.
+
+11. Kernel Panic
+Check logs with journalctl -k or /var/log/kern.log. Usually due to hardware issues, bad drivers, or incompatible kernel modules. Reboot into a previous kernel using GRUB. Update or rollback kernel as needed. Use memtest86+ to test RAM.
+
+12. Stale NFS Mounts
+List mounts with mount. Use umount -f to force unmount or umount -l for lazy unmount. Restart NFS client service. Automate mount retries or use autofs. Verify NFS server is reachable and exporting directories correctly.
+
+13. Docker Container Exited Unexpectedly
+Use docker logs container_name to get logs. Inspect exit code using docker inspect. Check Dockerfile or command passed in docker run. Ensure required volumes or env variables are correctly passed. Restart or rebuild as needed.
+
+14. Port Already in Use
+Check with lsof -i :PORT or netstat -tulnp. Identify process and kill with kill -9 PID. Change your app to a different port if conflict persists. Check for zombie or hung services that never released the port.
+
+15. SELinux Blocking Access
+Temporarily test with setenforce 0. Use audit2why and audit2allow to diagnose and generate rules. Don’t disable SELinux permanently; instead, update the policy. Label files correctly with restorecon -Rv /path. Use getenforce and semanage to manage contexts.
+
+16. Time Sync Issues
+Use timedatectl to check time settings. Install and enable NTP service (chronyd or ntpd). Sync immediately with ntpdate pool.ntp.org. Ensure firewall allows NTP (UDP 123). For VMs, check if host clock drift is affecting the guest.
+
+17. Corrupted Package Database
+For Debian-based systems, use dpkg --configure -a and apt-get install -f. For RPM systems, clean cache using yum clean all or dnf clean all. Rebuild database with rpm --rebuilddb. Remove any partially-installed packages. Use verbose mode to isolate the issue.
+
+18. High I/O Wait
+Use iostat -xz 1, iotop, or dstat to monitor disk activity. Identify which process is causing heavy reads/writes. Consider adding more RAM to reduce swap or slow storage. Use SSDs or tune filesystem mount options like noatime. Limit logging or cache-heavy apps.
+
+19. Too Many Open Files
+Check limits with ulimit -n. Increase limits by editing /etc/security/limits.conf. Modify systemd service files to raise LimitNOFILE. Use lsof to find file descriptor leaks. Check application configuration for file pooling.
+
+20. Zombie Processes
+Use ps aux | grep Z to find zombies. They’re dead but not reaped; identify the parent PID. If the parent isn’t reaping, restart it. If unresponsive, reboot the system. Prevent with proper signal handling in apps.
+
+21. Outdated Certificates
+Use openssl s_client -connect host:443 to check certs. Replace expired certs in /etc/ssl or web server directory. Reload the service (systemctl reload nginx/apache). Automate renewals with Let’s Encrypt and certbot. Watch logs for expiry warnings.
+
+22. Broken Software RAID
+Check RAID status with cat /proc/mdstat. Use mdadm --detail /dev/mdX to inspect. Replace failed disks with mdadm --add. Rebuild with mdadm --assemble. Monitor regularly and set email alerts.
+
+23. Slow DNS Resolution
+Edit /etc/resolv.conf to use faster DNS servers (e.g., 1.1.1.1, 8.8.8.8). Ensure no broken nameserver entries. Test with dig, ping, host. If using systemd-resolved, check systemd-resolve --status. Reduce timeout in /etc/nsswitch.conf.
+
+24. Failed Mounts on Boot
+Use nofail in /etc/fstab to prevent boot failures. Verify mount point exists and permissions are correct. Test manually with mount -a. Check dmesg or journal logs. Use UUIDs or labels to avoid device name changes.
+
+25. iptables Rules Not Persisting
+Use iptables-save > /etc/iptables.rules. Restore at boot with iptables-restore. On Debian, install iptables-persistent. On CentOS, use service iptables save. Consider moving to nftables or firewalld for modern systems.
+
+26. Accidentally Deleted Important File
+If not overwritten, use extundelete or testdisk for ext4. Unmount disk ASAP to prevent data loss. Use backups or version control for critical files. Train users to avoid rm -rf * errors using safe aliases. Use trash-cli or safe-rm.
+
+27. GRUB Bootloader Broken
+Boot from a live CD/USB. Mount root partition and chroot. Reinstall GRUB using grub-install and update-grub. Reboot. Keep a rescue disk handy.
+
+28. Duplicate IP Address Conflict
+Use arping to detect IP conflicts. Change static IP or DHCP assignment. Avoid hardcoded IPs in configs. Reserve IPs via MAC in DHCP server. Monitor with ip monitor.
+
+29. Filesystem Corruption
+Unmount the partition. Run fsck /dev/sdX. Reboot only after fsck finishes. Backup critical data regularly. Consider using journaled filesystems (ext4, XFS, etc.).
+
+30. Lack of Audit Logging
+Enable auditd and configure rules in /etc/audit/audit.rules. Use ausearch and aureport to view logs. Set up logging for sudo, file access, and network activity. Rotate logs regularly. Watch for audit.log size growth.
+
+31. Swapping Despite Free RAM
+Check with vmstat 1, free -m, or top. Swappiness might be too high; lower it with sysctl vm.swappiness=10. Investigate memory-hungry processes. Consider more RAM. Disable swap temporarily if testing performance (swapoff -a).
+
+32. Locale Errors
+Set correct locale with dpkg-reconfigure locales or export LANG, LC_ALL. Generate missing locales with locale-gen. Prevent errors in shell scripts with correct encoding. Check /etc/default/locale. Useful for non-English systems.
+
+33. Package Lock Issues
+Remove lock file: /var/lib/dpkg/lock, /var/lib/apt/lists/lock, or /var/cache/apt/archives/lock. Kill any stuck apt or dpkg process. Run dpkg --configure -a. Then resume with apt update. Avoid interrupting package managers.
+
+34. Stuck System Update
+Interrupt only if hung for a long time. Resume with dpkg --configure -a. Clean up with apt clean && apt update && apt upgrade. Check disk space and internet. Reboot if needed.
+
+35. Fail2Ban Not Blocking IPs
+Check /var/log/fail2ban.log for action failures. Ensure correct log paths in jail config. Reload Fail2Ban with fail2ban-client reload. Check ban with fail2ban-client status jailname. Test with simulated brute force.
+
+36. Hostname Not Updating
+Use hostnamectl set-hostname. Also update /etc/hostname and /etc/hosts. Reboot or restart systemd-logind. Ensure prompt reflects change. Use FQDN for fully qualified setup.
+
+37. Broken Symbolic Link
+Check with ls -l—broken links appear in red. Recreate target file or adjust the symlink. Use readlink to inspect paths. Remove unused symlinks. Avoid absolute paths if relocatable.
+
+38. User Locked Out
+Use a root-enabled recovery shell. Mount the root partition if needed. Edit /etc/shadow to unlock or reset password with passwd. Check pam.d and sudoers config. Reboot after fixing.
+
+39. LVM Volume Full
+Use lvextend -L +10G /dev/vgname/lvname followed by resize2fs or xfs_growfs. Add physical volumes with pvcreate and vgextend. Monitor with lvs, vgs, pvs. Automate alerts. Always keep backups.
+
+40. Slow SSH Login
+Check DNS resolution (UseDNS no in sshd_config). Disable GSSAPI auth (GSSAPIAuthentication no). Use ssh -v to debug. Consider using faster ciphers (chacha20-poly1305). Monitor login attempts in logs.
+
+41. System Hangs Randomly
+Check hardware logs with dmesg, journalctl -xe, and memtest. Monitor temperatures (sensors). Update BIOS/firmware. Disable power-saving features or C-states. Check PSU or RAM health.
+
+42. Missing PATH Entries
+Temporarily fix with export PATH=.... Permanently fix in .bashrc, .profile, or /etc/environment. Use which or type to confirm binaries. Avoid duplicate paths. Consider /etc/profile.d/ for system-wide changes.
+
+43. Sudo Not Working
+Ensure user is in sudo or wheel group. Check /etc/sudoers syntax with visudo. Restore sudo access via recovery mode if locked out. Use pkexec as an alternative. Keep a root session open when testing sudo.
+
+44. Docker Disk Bloat
+Clear with docker system prune. Remove old volumes: docker volume rm. Check /var/lib/docker size. Set log rotation in daemon.json. Monitor image sizes regularly.
+
+45. Broken .bashrc or .profile
+Use bash --noprofile --norc to open clean shell. Fix syntax errors. Backup before editing. Test with source ~/.bashrc. Use a separate config loader file.
+
+46. rsync Permission Denied
+Check SSH key or user permissions. Use rsync -avz --progress user@host:/source /dest. Test with simple files first. Use --rsync-path if remote rsync isn't in default path. Avoid root unless needed.
+
+47. Logrotate Not Rotating
+Check /etc/logrotate.conf and /etc/logrotate.d/. Run logrotate -d for debug. Check cron or systemd-timers execution. Set correct permissions. Ensure log file names match config.
+
+48. No Space on /boot
+Remove old kernels with apt autoremove --purge. Use dpkg -l | grep linux-image to list and apt purge specific versions. Don’t remove the current kernel. Expand /boot if needed. Automate cleanup with hooks.
+
+49. System Clock Drift
+Use NTP daemon or chronyd. Avoid setting clock manually (date -s). Use hwclock to sync hardware clock. Monitor with ntpq -p. For containers, sync from host.
+
+50. Missing Man Pages
+Install man-db and manpages. Use apropos and whatis to check if available. Redhat-based systems: yum install man-pages. Debian: apt install man-db. Use tldr for simplified pages (npm install -g tldr).
+
+51. Accidental rm -rf /
+Prevention: Set aliases like alias rm='rm -i'. Use safe-rm or protect important directories using chattr +i. If already executed, stop all operations to prevent data overwrite and attempt recovery with testdisk, extundelete, or backups. Reinstall may be the only option. Use sudo with caution.
+
+52. Docker Container Can't Access Host Port
+Ensure container uses --network host or map ports correctly with -p HOST:CONTAINER. Verify firewall rules aren’t blocking access. Check if the host service is bound to 127.0.0.1 (change to 0.0.0.0). Use netstat -tulnp or ss -tulnp to inspect.
+
+53. System Out of Inodes
+Run df -i to check inode usage. Identify inode-heavy directories with find . -xdev -type f | wc -l. Clean up logs, small temp files, or misbehaving apps creating excessive files. Format with higher inode ratio if frequent. Automate cleanup via cron.
+
+54. Firewall Blocks Legitimate Traffic
+List rules with iptables -L -v -n or nft list ruleset. Temporarily flush rules with iptables -F to test. Log dropped packets with LOG rule. Fix persistent configs via firewalld, nftables, or iptables-persistent. Document rules thoroughly.
+
+55. Slow MySQL/MariaDB Queries
+Use EXPLAIN to analyze query performance. Enable slow query log in my.cnf. Tune using mysqltuner or Percona Toolkit. Index frequently used fields. Optimize memory parameters (innodb_buffer_pool_size, etc.).
+
+56. PostgreSQL Not Starting
+Check logs in /var/lib/pgsql/data/pg_log/ or journalctl. Ensure directory ownership is correct. Remove stale lock file (postmaster.pid). Verify disk space and permissions. Reinitializing data dir should be last resort.
+
+57. Container Logs Consuming Disk
+Use Docker logging options (--log-opt max-size, max-file). Switch to journald or fluentd drivers. Periodically clean logs in /var/lib/docker/containers. Rotate logs using logrotate. Monitor /var/log size.
+
+58. Too Many Zombie Containers
+Run docker ps -a and prune exited containers with docker container prune. Avoid --rm=false unless debugging. Automate cleanup using cron or lifecycle policies. Monitor for container crash loops.
+
+59. Linux Server Hacked
+Disconnect from the network immediately. Capture memory/disk images for forensics. Check for new users, cron jobs, open ports, rootkits (chkrootkit, rkhunter). Reinstall from a known good image. Apply patches and tighten security.
+
+60. DNS Hijacking or Poisoning
+Use trusted DNS like 1.1.1.1 or 9.9.9.9. Disable local DNS caching if compromised. Monitor with dig, dnsmasq, systemd-resolved. Use DNSSEC where supported. Avoid public Wi-Fi or VPN without DNS leak protection.
+
+61. Accidentally Closed SSH Session Mid-Operation
+Always run long-running tasks with screen or tmux. If process detached and still running, reattach or kill with ps -ef. Log task output to a file. Use at, nohup, or systemd services for better safety.
+
+62. OpenVPN Drops Connection
+Check openvpn.log and routes. Update firewall and IP forwarding settings. Use persistent keep-alive with ping options. Make sure time and certs are synced. Split tunneling may need manual routes.
+
+63. Systemd Fails to Start Critical Service
+Run systemctl status and journalctl -xeu. Check unit file for syntax errors (systemd-analyze verify). Use ExecStartPre to debug dependencies. Ensure required mount points or sockets are ready. Consider adding After= and Requires= in unit.
+
+64. Corrupted LUKS Volume
+Backup the header using cryptsetup luksHeaderBackup. Try cryptsetup luksOpen with keyfile. If header is lost, and no backup, recovery is almost impossible. Use separate recovery keys. Automate unlock via initramfs.
+
+65. High Load Average but Low CPU
+Indicates I/O wait or blocked processes. Use top, vmstat, or iostat. Check NFS, disk, or swap bottlenecks. Tune I/O scheduler or move workloads. Fix misbehaving applications locking resources.
+
+66. User Repeatedly Locked by PAM
+Check /var/log/auth.log or /var/log/secure. Unlock using pam_tally2 --reset. Adjust deny= and unlock_time= in /etc/pam.d/system-auth. Use faillock or pam_faillock. Prevent brute force via fail2ban.
+
+67. Ansible SSH Failure
+Ensure target user has access and correct keys. Use ansible -m ping all -vvvv for debug. Confirm inventory and group_vars are correct. Disable host key checking if needed temporarily. Use become: true for privilege escalation.
+
+68. Service Restart Fails After Reboot
+Check for missing dependencies or ordering in systemd. Set WantedBy=multi-user.target. Enable the service with systemctl enable servicename. Use After=network.target for network-dependent services. Inspect logs for early boot errors.
+
+69. Huge Log Files
+Use logrotate for rotation and compression. Compress old logs with gzip, xz, or zstd. Analyze with grep, awk, or goaccess. Archive or ship logs off-server. Consider centralized logging (ELK, Loki).
+
+70. Email Not Sending (Postfix, Sendmail)
+Check mail queue (mailq) and logs in /var/log/mail.log. Ensure MX records and reverse DNS exist. Verify no firewall blocks port 25. Set proper SPF/DKIM/DMARC. Test sending with telnet or sendmail.
+
+71. Unreachable EC2 Instance
+Check AWS Console for networking config. Verify security group, NACLs, and route tables. Use EC2 Serial Console or SSM to troubleshoot. Recover volume using snapshot. Set up CloudWatch alarms for early detection.
+
+72. Filesystem Full Due to Journal
+Use journalctl --disk-usage to check space. Reduce size with journalctl --vacuum-size=100M. Limit in /etc/systemd/journald.conf. Rotate with logrotate. Use persistent logs only if needed.
+
+73. Puppet Agent Not Applying Catalog
+Check connectivity with master (puppet agent -t --debug). Validate certs with puppet ssl. Regenerate with puppet cert clean. Check manifests and module paths. Restart puppetserver if stuck.
+
+74. Kubernetes Pod CrashLoopBackOff
+Use kubectl describe pod and kubectl logs to diagnose. Check for failed health checks, env variables, config maps, or volume mounts. Fix issues and redeploy. Monitor with kubectl get events. Use initContainers for prep steps.
+
+75. Kubernetes Node Not Ready
+Check kubelet logs. Ensure proper CNI plugin is installed. Disk pressure, memory pressure, or unreachable API can cause NotReady. Restart kubelet or container runtime. Upgrade components if mismatched.
+
+76. Broken Nginx/Apache Config
+Test config with nginx -t or apachectl configtest. Look for syntax errors or bad paths. Restart the service. Review logs in /var/log/nginx/error.log. Use curl -v to debug endpoints.
+
+77. Invalid SSL/TLS Configuration
+Check with openssl s_client -connect domain:443. Use tools like ssllabs.com to inspect. Fix intermediate certs or key mismatch. Renew expired certs. Avoid weak ciphers and enforce strong protocols.
+
+78. File Descriptor Leak
+Monitor with lsof, ss, and /proc/PID/fd. Restart offending service. Limit with ulimit and tune app behavior. Use systemd limits if needed. Check logs for FD exhaustion errors.
+
+79. Broken RAID Mirror
+Use mdadm --detail and mdadm --fail / --remove / --add to fix. Replace failed disk and rebuild. Watch /proc/mdstat. Send email alerts via mdadm.conf. Rebuild during low-load periods.
+
+80. Failure in System Updates
+Check package manager logs (/var/log/dpkg.log, yum.log). Use --skip-broken or fix dependency manually. Clear cache. If broken kernel, use GRUB to boot old one. Test on staging before production.
+
+81. Filesystem Mounts Too Slow
+Use noauto and x-systemd.automount to mount on demand. Investigate NFS/CIFS shares that timeout. Optimize fstab entries and boot order. Use background (bg) option for network FS. Monitor with mount -v and journalctl.
+
+82. Stuck dpkg or apt Process
+Find PID with ps aux | grep dpkg and kill. Remove lock files (/var/lib/dpkg/lock*). Reconfigure with dpkg --configure -a. Clear broken packages with apt install -f. Use strace -p to check where it’s stuck.
+
+83. Kubernetes PVC Stuck in Pending
+Check storage class and dynamic provisioner. Inspect events with kubectl describe pvc. Ensure cloud provider integration is correct. Use static provisioning if needed. Validate with kubectl get sc.
+
+84. Snapd Not Starting
+Check systemd unit with systemctl status snapd. Inspect logs with journalctl -u snapd. Reinstall snapd if corrupted. Verify /var/lib/snapd permissions. Restart with systemctl restart snapd.
+
+85. Broken Network After Interface Renaming
+Check new interface name with ip a. Update /etc/network/interfaces or netplan config. Regenerate initramfs if needed. Disable predictable interface names with kernel parameter net.ifnames=0. Use udevadm to inspect events.
+
+86. Filesystem Misreporting Free Space
+Check with df -hT and du -sh /*. Inodes may be full (df -i). Deleted files still open may hold space (lsof | grep deleted). Reboot or restart app holding file. Balance filesystem (Btrfs) if needed.
+
+87. ZFS Pool Degraded
+Check zpool status. Replace failed disks with zpool replace. Scrub with zpool scrub. Backup before major repairs. Monitor SMART attributes with smartctl.
+
+88. Cron Jobs Not Running With Expected Env
+Cron has minimal PATH. Use full paths in commands (/usr/bin/python3). Export environment variables in the script. Log output (>> ~/cron.log 2>&1) for debugging. Run manually to confirm.
+
+89. System Clock Ahead/Behind on VM
+Enable NTP sync (timedatectl set-ntp true). Some hypervisors pass wrong time — use guest tools. Check for drift (ntpq -p). Sync hardware clock with hwclock --systohc. Use chrony in cloud environments.
+
+90. Remote Desktop Lag (VNC/XRDP)
+Reduce resolution and color depth. Use lightweight window managers (XFCE, LXDE). Check bandwidth and latency. Use xrdp or NoMachine for better performance. Restart VNC/XRDP sessions regularly.
+
+91. Broken Pipe During SSH
+Use ServerAliveInterval and ServerAliveCountMax in SSH config. Happens during long inactivity or firewall session drops. Keep terminal active or use tmux. Check dmesg for connection reset logs.
+
+92. Process Ignoring SIGTERM
+Force kill with kill -9 PID. Modify app to handle signals gracefully. Use strace to verify signal behavior. Reboot only as a last resort. Monitor such processes using a watchdog.
+
+93. Systemctl Hangs on Shutdown
+Likely due to a stuck process or unmount. Use systemctl list-jobs, journalctl -xb to identify. Mask the failing service with systemctl mask. Investigate dependencies or cleanup routines. Add DefaultTimeoutStopSec=15s to limit wait.
+
+94. Missing Shared Libraries
+Check with ldd binary. Install required .so via package manager. Update LD_LIBRARY_PATH. Run ldconfig after installing custom libs. Avoid deleting system libraries.
+
+95. UID/GID Conflicts Across Systems
+Map users consistently with nsswitch.conf, LDAP, or manual mapping. Prevent conflicts in shared environments (NFS, containers). Change with usermod -u and fix file ownerships. Automate user creation scripts with UID/GID checks.
+
+96. Script Runs Manually But Not Via Cron
+Likely due to different environment. Use full paths and define environment in script. Redirect output to file for logs. Run as cron user manually with sudo -u user /path/script.sh. Check permissions on all files used.
+
+97. iptables Dropping Legit Traffic After Reboot
+Ensure rules are saved (iptables-save) and restored on boot. Use persistent tools (iptables-persistent, firewalld, or nftables). Add restore commands in systemd or rc.local. Test backup/restore during boot cycles.
+
+98. Cloud-init Delays Boot
+Check /var/log/cloud-init.log. Disable unused modules via /etc/cloud/cloud.cfg. Reduce instance metadata timeout. Clean cloud-init state (cloud-init clean --logs). Use custom userdata cautiously.
+
+99. Persistent MAC Address Change
+Set MAC address with ip link set dev eth0 address XX:XX:XX:XX:XX:XX. Make it permanent via systemd, NetworkManager, or udev rules. Avoid conflicts with DHCP servers. Required for licensing sometimes.
+
+100. LVM Snapshot Filling Up Root
+Monitor snapshot usage (lvs). Merge (lvconvert --merge) or remove (lvremove) unused snapshots. Create with appropriate size (--size 1G). Use for backups only briefly. Don’t leave snapshots indefinitely active.
+
+101. Too Many Processes (PID Exhaustion)
+Check with ps -e | wc -l and monitor max PID with cat /proc/sys/kernel/pid_max. Investigate runaway process spawns or fork bombs. Use top, pstree, or systemctl status to trace origins. Tune limits via ulimit -u and /etc/security/limits.conf. Reboot may be required in extreme cases.
+
+102. Docker Container Has No Internet
+Ensure container has proper network config. Bridge network must be set up; test with docker exec. Check if DNS is resolvable inside the container. Use --dns flag to override DNS if needed. Check firewall/NAT rules blocking traffic.
+
+103. CGroup Limit Not Working
+Inspect via systemctl show --property or cat /sys/fs/cgroup. Make sure cgroups v1 or v2 is enabled and supported by your distro. Use systemd directives (MemoryMax=, CPUQuota=). Reload and restart the service to apply limits.
+
+104. initramfs Emergency Mode
+Triggered by boot failures due to missing root, fs corruption, or UUID mismatch. Use lsblk and blkid to verify UUIDs. Recreate initramfs with update-initramfs -u or dracut -f. Update /etc/fstab or bootloader configs. Exit recovery with exit.
+
+105. OOM Killer Killing Critical Services
+Check dmesg | grep -i oom and /proc/meminfo. Reduce memory usage or tune vm.overcommit_memory. Set oom_score_adj to protect critical processes. Consider memory cgroups for container workloads. Increase swap if necessary.
+
+106. Broken .bash_history
+Ensure HISTFILE is set. Check disk space and file permissions. Don't delete history file mid-session. Flush current session history with history -w. Use version control for important command logs.
+
+107. GlusterFS Volume Inconsistency
+Run gluster volume status and gluster volume heal. Ensure all peers are online (gluster peer status). Perform manual heal if required. Split-brain must be resolved manually. Avoid using Gluster without quorum.
+
+108. Open File Limit Reached on Application
+Use lsof | wc -l to monitor usage. Increase limits via ulimit -n, PAM limits, and systemd configs. Monitor per-process FD usage. Use watch -n1 ls /proc/$PID/fd to debug. Ensure application properly closes files.
+
+109. Audit Logs Overwhelm Disk
+Compress or rotate via logrotate. Tune /etc/audit/auditd.conf with max log size and rules. Use ausearch to extract specific logs. Use auditctl -l to reduce noisy rules. Archive logs to remote storage.
+
+110. Lost Root Password
+Boot into single-user mode via GRUB. Mount root as read-write, then run passwd. For cloud systems, reset via rescue image or provider tools. Use recovery console if available. Always keep at least one admin backup user.
+
+111. Failed System Upgrade (e.g., Ubuntu dist-upgrade)
+Backtrace logs in /var/log/dist-upgrade. Repair broken packages with dpkg --configure -a. Disable conflicting PPAs or third-party repos. Clean residual configs and retry. Always back up before major version upgrades.
+
+112. KVM Guest Network Broken
+Check bridge device exists (brctl show, ip link). Ensure guest is attached to correct bridge. Use NAT or bridged mode depending on need. Restart libvirtd or networking. Add firewall rules for forwarding if NAT used.
+
+113. NFS Mounts Hanging at Boot
+Add bg, nofail, and timeo to /etc/fstab. Ensure NFS server is reachable. Use autofs for demand mounting. Watch dmesg for timeouts or stale handles. Don't hard mount critical filesystems.
+
+114. Slow Git Over SSH
+Check SSH latency with ssh -vv. Disable GSSAPI in ~/.ssh/config. Use ControlMaster to speed up repeated connections. Use https if SSH isn’t essential. Check DNS reverse lookup delays.
+
+115. AppArmor Blocking Execution
+Use aa-status and journalctl -t apparmor to inspect. Put profiles in complain mode during testing. Adjust rules or disable if not used. Create custom profiles with aa-genprof. Enforce only when stable.
+
+116. Huge Swap Usage Despite RAM Available
+May be due to aggressive swappiness. Set vm.swappiness=10 or less. Use top and vmstat to verify swap usage. Tune application memory usage. Consider zswap or disabling swap temporarily.
+
+117. Kubernetes Node Disk Pressure
+Check kubectl describe node. Clean up container images (docker system prune). Offload logs and audit data. Separate /var/lib/kubelet to its own disk. Use taints to prevent scheduling during pressure.
+
+118. Kubelet Not Starting
+Check for missing certs or misconfigured kubeconfig. Inspect /var/log/syslog or journalctl -u kubelet. Ensure CNI plugin is correctly installed. Restart kubelet after fixing errors. Validate flags in /etc/systemd/system/kubelet.service.d/.
+
+119. Filesystem Mount Options Forgotten After Reboot
+Ensure correct fstab syntax. Use UUID instead of /dev/sdX where possible. Test with mount -a. Add defaults or specific options. Run tune2fs -l for mount settings on ext filesystems.
+
+120. Missing /etc/resolv.conf
+Check if systemd-resolved or NetworkManager overwrote it. Use ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf. Avoid manually editing if managed. Configure DNS in netplan or ifcfg scripts instead.
+
+121. RAID Controller Battery Failing
+Use megacli, storcli, or smartctl depending on controller. Monitor via vendor tools. Replace battery ASAP — write cache may be disabled. Schedule regular battery tests. Consider BBU alerts for proactive monitoring.
+
+122. rsync Deletes Unexpected Files
+Use --dry-run before actual sync. Double-check trailing slashes. Always specify source and destination carefully. Consider --backup and --backup-dir for safer deletes. Log output with -v or --log-file.
+
+123. xargs Breaking With Spaces
+Use xargs -0 with find -print0. Wrap arguments in quotes. Test with echo before actual command. Pipe correctly and avoid wildcards. Use parallel for safer handling in scripts.
+
+124. Local Port Exhaustion
+Check with ss -s, netstat, or cat /proc/sys/net/ipv4/ip_local_port_range. Happens during high connection churn (e.g., proxies). Increase port range or reduce TIME_WAIT (tcp_tw_reuse). Monitor NAT sessions.
+
+125. Container Permissions Misaligned With Host
+Mismatch between container UID and host file ownership. Use --user, bind mount with UID:GID mapping, or fix ACLs. In Kubernetes, use SecurityContext. Avoid running as root in container. Use id and ls -n to verify mapping.
+
+126. Broken sudo After PAM Misconfig
+Boot into recovery or use live CD. Mount root and restore PAM config (/etc/pam.d/sudo). Use visudo for all sudo changes. Keep a backup config or alternate user with root access.
+
+127. inode Usage Without Disk Space Issues
+List inode usage with df -i. Find folders with many small files (find / -xdev -type f | wc -l). Clean mail queues, temp files, or logs. Reformat FS with higher inode ratio if needed.
+
+128. Missing LVM Volume Group After Reboot
+Use vgscan, vgchange -ay to activate. Check /etc/fstab for wrong UUIDs. Add lvm2 to initramfs config. Recreate /etc/lvm/cache/.cache if corrupted.
+
+129. SSH Host Key Changed Warning
+Verify server identity manually. If correct, remove old key from ~/.ssh/known_hosts. Reconnect. Use ssh-keygen -R hostname. Don’t disable StrictHostKeyChecking in production.
+
+130. Stale Lock in Package Manager
+Manually remove /var/lib/dpkg/lock-frontend, /var/lib/apt/lists/lock. Ensure no running processes. Run dpkg --configure -a after cleanup. Restart system if stuck. Prevent with tmux or screen.
+
+131. Fail2Ban Not Banning Despite Logs
+Check jail config for correct log paths and regex. Use fail2ban-regex to test. Ensure firewall backend is working (iptables, nftables). Restart fail2ban and tail logs for errors.
+
+132. Email Rejected Due to SPF/DKIM
+Check SPF records via dig txt domain. Use tools like dkimpy, opendkim-testkey. Add missing DNS records. Verify signing domain matches sender. Check mail headers to debug.
+
+133. Broken RAID Sync After Reboot
+Use mdadm --assemble --scan. Watch /proc/mdstat. Add UUIDs to mdadm.conf. Ensure initramfs includes mdadm tools. Consider auto-reassembly with systemd service.
+
+134. Slow Boot Due to Failing Disk
+Inspect dmesg and smartctl -a /dev/sdX. Look for I/O errors or reallocated sectors. Replace disk if SMART errors. Temporarily blacklist device to boot. Backup data immediately.
+
+135. NFS: File Not Found on Client But Exists on Server
+Stale file handle — likely modified on server side. Remount or restart NFS client. Use noac or actimeo=0 for critical files. Avoid editing mounted NFS files on both ends.
+
+136. iptables NAT Rules Not Working
+Check with iptables -t nat -L -n -v. Ensure MASQUERADE or SNAT rules apply to correct interface. Enable IP forwarding (sysctl net.ipv4.ip_forward=1). Restart affected services.
+
+137. firewalld and iptables Conflict
+Both manage firewall rules — don't mix. Use one or disable the other (systemctl mask). Convert iptables rules to firewalld rich rules if migrating. Use firewall-cmd for rule inspection.
+
+138. iptables Not Blocking Traffic
+Check rule order and chain (INPUT, FORWARD). Use iptables -v -L to view hit counters. Add logging for unblocked packets. Be cautious of ACCEPT rules placed before DENY. Test using nc or telnet.
+
+139. Large Directory Listing Very Slow
+Use ls -U or find . to skip sorting. Avoid graphical file managers. Consider archiving old files. Break into subdirectories for scalability.
+
+140. rsyslog Not Logging Anything
+Check /etc/rsyslog.conf for active modules. Test with logger "test message". Ensure file permissions are correct. Restart with systemctl restart rsyslog. Use debug mode rsyslogd -dn.
+
+141. Root Partition 100% Full
+Use du -h --max-depth=1 / to locate large folders. Clean /var/log, /tmp, old kernels, caches (apt clean, yum clean all). Check for orphaned Docker images and logs. Delete unnecessary journal logs (journalctl --vacuum-size=100M). Reboot only after freeing space to avoid corruption.
+
+142. Delayed Startup from Network Services
+Services like NFS, DNS, or LDAP may cause boot hangs. Use nofail in /etc/fstab, and After=network-online.target for service dependencies. Disable unused remote mounts. Investigate logs with journalctl --boot. Test network availability early in boot.
+
+143. Unresponsive System Due to DDoS
+Use iftop, netstat, or ss to identify flood sources. Apply rate-limiting via iptables or nftables. Consider TCP SYN cookies, connection tracking limits, and fail2ban. Block IPs upstream (cloud provider or CDN). Harden public services with WAFs or throttling.
+
+144. Firewall Drops Established Connections
+Ensure rules accept ESTABLISHED,RELATED traffic:
+iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+Avoid overly aggressive DROP policies. Use connection tracking tools like conntrack. Test with nc, curl, or ping.
+
+145. Misconfigured sudoers File
+Edit only with visudo to validate syntax. One wrong line can lock out all users. Recover by booting into single-user mode or a rescue shell. Keep a backup copy of /etc/sudoers. Avoid using NOPASSWD globally unless needed.
+
+146. Unbootable VM After Kernel Upgrade
+Revert to previous kernel via GRUB menu. Use update-grub after fixing modules. Ensure initramfs was rebuilt during the upgrade. Examine /boot space and kernel package state. Prevent with test kernel boots before production upgrade.
+
+147. dmesg Output Missing or Empty
+May be restricted by kernel ring buffer permissions. Use sudo dmesg or read /dev/kmsg. Check if dmesg_restrict is enabled in /proc/sys/kernel/. Disable restriction with sysctl kernel.dmesg_restrict=0 (if secure). Audit kernel logs via journalctl -k.
+
+148. Misbehaving rsyslog Filters
+Check rules in /etc/rsyslog.conf and /etc/rsyslog.d/. Use priority/facility format carefully (*.info, authpriv.*, etc.). Use logger to test rule matches. Restart service after config changes. Ensure destination files are writable.
+
+149. NIC Driver Crashes Under Load
+Use ethtool -i eth0 to find driver/module. Check dmesg for hardware errors. Update NIC firmware or kernel. Try alternate drivers or disable offloading features (ethtool -K). Consider replacing faulty NIC if persistent.
+
+150. Unauthorized Cron Jobs or Backdoors
+List all user crontabs (crontab -l -u user, /etc/cron*). Look for suspicious binary paths or encoded commands. Check @reboot jobs and startup scripts. Use auditd or inotify to monitor changes. Revoke user access and rotate keys/passwords.
+
+1. Can't Find a File I Just Downloaded
+Downloads typically go to ~/Downloads. Use find ~ -type f -iname '*filename*' or xdg-user-dir DOWNLOAD. In graphical file managers, sort by date. Browser download folders can be set manually in settings.
+
+2. No Sound on Linux
+Open audio settings and ensure output device is correct. Use pavucontrol for advanced control. Restart PulseAudio: pulseaudio -k && pulseaudio --start. Check alsamixer for muted channels. Some systems need pipewire instead of PulseAudio.
+
+3. Wi-Fi Network Not Showing Up
+Ensure Wi-Fi is enabled with rfkill list. Restart NetworkManager or use nmcli dev wifi rescan. Reboot router if necessary. Try connecting manually via nmcli or GUI. Driver issues may require installing proprietary firmware.
+
+4. Permission Denied When Running a Script
+Use chmod +x script.sh to make it executable. Ensure you’re the owner or have execute rights. Run with ./script.sh or bash script.sh. Avoid running scripts from untrusted sources.
+
+5. USB Not Detected
+Check with lsblk, dmesg | tail, or lsusb. Try a different port. Mount manually if needed: sudo mount /dev/sdX1 /mnt/usb. Some file systems like exFAT or NTFS may require extra packages (exfat-utils, ntfs-3g).
+
+6. Can't Install .deb File
+Use sudo dpkg -i filename.deb, then fix dependencies with sudo apt install -f. If it fails, check if it's meant for your architecture. GUI install via GDebi is easier for beginners.
+
+7. “Command Not Found” Error
+Ensure the package is installed. Use which, whereis, or apt-file search to locate. Add missing directories to your PATH. Install packages using your distro’s package manager.
+
+8. Can't Change Wallpaper
+Try right-clicking desktop → "Set Wallpaper." If broken, use tools like feh or nitrogen. Some desktop environments (e.g., i3, awesome) don’t support GUI wallpaper managers.
+
+9. Accidentally Deleted File
+If not emptied from trash, restore from ~/.local/share/Trash. Use testdisk or extundelete for deep recovery (only on ext3/ext4 and unmounted partitions). Always keep regular backups (e.g., with deja-dup).
+
+10. Mouse or Touchpad Not Working
+Replug USB or toggle touchpad (some laptops use Fn+F9). Check xinput list. Install or update drivers (e.g., xserver-xorg-input-synaptics). Reboot or logout/login may restore functionality.
+
+11. File Won’t Open With Double Click
+File may not have associated application. Right-click → “Open With” or use CLI like xdg-open filename. Install missing apps like VLC for media or LibreOffice for documents.
+
+12. Keyboard Layout Is Wrong
+Check keyboard settings in system preferences. Set layout in setxkbmap or loadkeys (CLI). Temporary layout changes can be reversed after reboot without saving to config.
+
+13. Desktop Icons Missing
+Enable desktop icons in file manager preferences (e.g., Nautilus, Nemo). Some minimal environments (like GNOME 3 or XFCE) disable icons by default. Reinstall or reset the session config.
+
+14. Application Crashes Immediately
+Run from terminal to get error output. Reinstall the app (sudo apt install --reinstall). Check hidden config files in ~/.config/ or ~/.local/share/ and try renaming the folder.
+
+15. Screen Tearing While Watching Videos
+Enable vsync in system display settings or driver settings. Use compton or picom for tear-free compositing. Try different media players like VLC or MPV with appropriate output module.
+
+16. Files Open in Wrong App
+Right-click → Properties → Open With → Set Default. Update MIME associations in ~/.config/mimeapps.list. Use xdg-mime to manage defaults from CLI.
+
+17. Can’t Connect to Bluetooth Device
+Ensure Bluetooth is enabled (rfkill unblock bluetooth). Use blueman-manager or bluetoothctl. Restart service: sudo systemctl restart bluetooth. Pair and trust device again.
+
+18. USB Drive Shows "Read Only"
+File system may be corrupted or mounted as read-only. Check dmesg or mount output. Try fsck if safe, or backup and reformat the drive. FAT32/exFAT may fail if dirty bit is set.
+
+19. No Battery Percentage Indicator
+Install gnome-shell-extension-battery-percentage or enable it in power settings. CLI alternative: upower -i /org/freedesktop/UPower/devices/battery_BAT0. Some environments don’t show battery info by default.
+
+20. Caps Lock or Num Lock Not Working
+Try toggling with xset led or xmodmap. Some lightweight window managers don’t handle LED states well. May indicate keyboard driver issues.
+
+21. "Unable to Mount" Error on External Drive
+Check for file system errors or unclean NTFS volume. Try mounting manually. Use ntfsfix for NTFS, fsck for ext. Always safely eject from Windows before reconnecting.
+
+22. Package Manager Freezes
+Check if another process is using the package manager (e.g., apt). Kill any zombie lock files (/var/lib/dpkg/lock). Clean broken installs with sudo dpkg --configure -a.
+
+23. Can’t Play MP3 or Video Files
+Install media codecs:
+
+Ubuntu: sudo apt install ubuntu-restricted-extras
+Fedora: enable RPM Fusion
+Ensure media player supports necessary formats.
+24. Wrong Time After Dual Boot with Windows
+Windows uses local time, Linux uses UTC. Fix with timedatectl set-local-rtc 1. Or change Windows to use UTC via registry tweak. Best: set both to UTC.
+
+25. Can't Extract Archive (ZIP/RAR)
+Install archive tools: sudo apt install unzip unrar p7zip. GUI alternatives include file-roller, ark. Use unzip archive.zip -d dir.
+
+26. Terminal Freezes or Beeps
+Try reset or stty sane. Beeping can be silenced by disabling bell in terminal preferences. If system bell persists, blacklist pcspkr module.
+
+27. Unable to Print
+Ensure printer is detected (lpinfo -v). Use GUI printer tool or cups at http://localhost:631. Install driver packages (hplip, epson-inkjet-printer). Restart cups service.
+
+28. Touchscreen Not Working
+Use xinput list to detect device. May need kernel module or firmware. Update system and try mainline kernel if needed.
+
+29. Display Resolution Wrong
+Use xrandr to list and set supported resolutions. Modify .xprofile for persistent changes. Proprietary drivers (NVIDIA, AMD) may fix multi-monitor issues.
+
+30. Can’t Open Terminal
+Try Ctrl+Alt+F3 to access TTY. Run gnome-terminal, xfce4-terminal, or xterm from another app. Reinstall terminal package via package manager.
+
+31. Missing Fonts
+Install additional fonts (fonts-noto, fonts-freefont). Place custom fonts in ~/.fonts or /usr/share/fonts. Run fc-cache -fv to refresh font cache.
+
+32. Desktop Zoomed In / Out
+Try Ctrl+Mouse scroll. GNOME/MATE have screen zoom accessibility features — disable in Settings → Accessibility. Reset with dconf-editor if needed.
+
+33. GUI Login Loop
+Usually caused by incorrect permissions on .Xauthority or broken .profile. Fix in TTY:
+
+rm ~/.Xauthority  
+chmod 644 ~/.Xresources  
+34. Can’t Type Password in Terminal
+Password input in sudo is hidden for security. Just type and press Enter. If it fails, check your user is in the sudo group.
+
+35. Application Menu Entries Missing
+May need .desktop files in /usr/share/applications or ~/.local/share/applications. Reinstall app. Use alacarte or menulibre to edit.
+
+36. Screen Goes Black After Inactivity
+Power-saving settings may be aggressive. Change in Settings → Power. Disable screen blanking in xset or gnome-session-properties.
+
+37. GUI Freezes Randomly
+Could be compositor issues. Try disabling animations or switching window manager. Check logs: journalctl -xe, dmesg.
+
+38. "Could Not Lock /etc/passwd" When Changing Password
+Only root can change system-wide user info. Use sudo passwd username. Ensure no other passwd process is running.
+
+39. Slow File Copy from USB
+Could be due to sync vs async mount options. Use faster file systems (e.g., exFAT over FAT32). Avoid copying many small files.
+
+40. Repeated Password Prompt When Using sudo
+Configure timeout with sudo visudo:
+
+Defaults timestamp_timeout=15
+41. Update Manager Won’t Start
+Try CLI: sudo apt update && sudo apt upgrade. Reset GUI settings. Remove lock files or check if another process is running.
+
+42. No Internet After Sleep/Wake
+NetworkManager may not resume properly. Restart networking with sudo systemctl restart NetworkManager. Try disabling power-saving on Wi-Fi.
+
+43. Keyboard Shortcuts Don’t Work
+Reconfigure in system settings. Conflicts may occur if multiple keyboard layouts exist. Some shortcuts may be disabled by default in Wayland.
+
+44. USB Drive Not Ejecting
+Process may be using it — run lsof | grep /media/username. Kill the process or wait. Force unmount with sudo umount -l.
+
+45. App Installed But Not Launching
+Try running from terminal to see error logs. Check ~/.local/share/applications for malformed desktop files. Reinstall if needed.
+
+46. Laptop Not Suspending or Resuming
+May require ACPI tweaks or driver updates. Try systemctl suspend. Check journalctl logs after wake.
+
+47. Wrong Icons on Desktop
+May be due to missing or broken icon themes. Reinstall or reset icon theme in Appearance settings. Clear icon cache if needed.
+
+48. Software Center Freezes or Closes
+Clear cache: rm -rf ~/.cache/gnome-software. Try CLI package manager (apt, dnf, etc.). Check internet connection and package sources.
+
+49. Login Password Changed After Update
+Unlikely but possible if user settings were overwritten. Reset in recovery mode or TTY with passwd. Always back up /etc/shadow.
+
+50. Clipboard Doesn’t Work Between Apps
+Ensure clipboard manager is running. Try clipit, parcellite, or xclip. Wayland-based desktops sometimes have limitations across apps.
+
+1. Files Hidden After Download
+Files beginning with a dot (.) are hidden in Linux. Use ls -a to list all files. In file managers, press Ctrl+H to toggle hidden files. If your file was renamed with a leading dot, rename it back.
+
+2. USB Drive Mounts with Wrong Name
+Linux assigns names based on filesystem labels. Use lsblk -f to see the label. Change the label using mlabel (FAT), e2label (ext), or ntfslabel. Replug after changing the label.
+
+3. Accidentally Closed Terminal Running a Process
+If nohup or tmux wasn't used, the process likely stopped. Next time, use tmux, screen, or run with nohup command &. You can check if the process survived using ps aux | grep your_process.
+
+4. Mounted Drives Don't Appear in File Manager
+Drives may be mounted to /media or /mnt. Use df -h to see mount points. Mount manually with udisksctl mount -b /dev/sdX1. Restart file manager or relogin.
+
+5. Brightness Keys Not Working
+Try xbacklight -inc 10 or use brightnessctl. Check if required ACPI modules are loaded (acpi_video0, etc.). Update kernel or GPU drivers for better hardware support.
+
+6. Screenshot Shortcut Doesn’t Work
+Check keyboard settings under “Shortcuts.” Use tools like gnome-screenshot, flameshot, or spectacle depending on your DE. Run screenshot tools manually to test.
+
+7. Can't Rename File in GUI
+May not have permissions or file may be in use. Try renaming in terminal with mv. Make sure the file is not opened in any app.
+
+8. Can't Paste in Terminal With Ctrl+V
+Use Ctrl+Shift+V instead. Terminal shortcuts differ from GUI apps. You can also right-click to paste in some terminals.
+
+9. DVD or CD Not Auto-Mounting
+Check if the system detects it using dmesg | tail. Install udisks2 or enable automount in file manager settings. Mount manually with mount /dev/sr0 /mnt.
+
+10. Desktop Freezes When Watching Videos
+Try using a different video player like MPV or VLC. Update graphics drivers. Disable hardware acceleration in player settings.
+
+11. Dragging Windows Doesn't Work Properly
+You may be using a tiling window manager or custom shortcut. Switch to floating mode or change settings in the window manager. Test another desktop environment to confirm.
+
+12. Volume Stuck at 100% or 0%
+Use alsamixer to manually adjust levels. Check if multiple sinks/devices are active. Try resetting PulseAudio with pulseaudio -k.
+
+13. USB Drive Not Writable
+Drive may be mounted as read-only due to errors. Check mount or dmesg. Run fsck to fix. Format the drive if needed.
+
+14. Can’t See Other Computers on Network
+Ensure samba or avahi is installed. Use ping or nmap to discover hosts. Enable network discovery/sharing in file manager.
+
+15. Trash Can Not Emptying
+Files might be locked or owned by root. Try rm -rf ~/.local/share/Trash/*. Use sudo for root-owned trash in /root/.local/share/Trash.
+
+16. Desktop Notifications Not Showing
+Ensure notification daemon is running (dunst, notify-osd, etc.). Restart session or check DE settings. Use notify-send "test" to check functionality.
+
+17. Can’t Connect to Mobile Hotspot
+Check if the hotspot uses WPA2 and compatible frequency. Use nmcli or GUI tool. Restart NetworkManager and reconnect.
+
+18. Application Freezes on Startup
+Run app from terminal and watch logs. Rename config folder in ~/.config/appname. Reinstall the app if needed.
+
+19. Auto Login Stops Working
+Check /etc/lightdm/lightdm.conf or GDM equivalent. Enable autologin-user=username. May be disabled by system updates.
+
+20. App Installed But Shortcut Missing
+Create a .desktop file in ~/.local/share/applications. Use existing apps as a template. Update application cache with update-desktop-database.
+
+21. Can’t Lock Screen
+Install xlock, gnome-screensaver, or use DE’s lock command. Assign keyboard shortcut. Some lightweight environments don’t lock by default.
+
+22. Microphone Not Working
+Open pavucontrol and check input tab. Set correct input device. Ensure mic isn’t muted or has very low gain.
+
+23. System Info Shows “Unknown CPU”
+Install lshw, inxi, or update dmidecode. Some lightweight systems may not display full hardware info unless microcode or firmware is updated.
+
+24. File Manager Opens at Root Every Boot
+May be autostart entry saved with root permissions. Check ~/.config/autostart/. Remove or edit .desktop files launching file managers.
+
+25. Can't Install Software Due to PolicyKit
+Install policykit-1-gnome for GUI auth dialogs. Restart session. Some environments lack policykit agents by default.
+
+26. Time Sync Is Off
+Use timedatectl to enable NTP. Install chrony or ntpd if needed. Manual sync: sudo ntpdate time.nist.gov.
+
+27. Can’t Change File Extension in GUI
+Some file managers prevent it. Rename via terminal: mv file.old file.new. You can also edit properties if supported.
+
+28. Mouse Acceleration Too High or Low
+Change settings with xinput or gsettings. Use GUI settings for pointer speed. Some DEs like XFCE allow fine-tuned control.
+
+29. Battery Drains Fast on Laptop
+Install tlp or powerstat to optimize battery. Check powertop for analysis. Lower screen brightness and disable animations.
+
+30. Audio Plays Through Wrong Device
+Set default device in pavucontrol. Disconnect/reconnect headphones. Use pacmd set-default-sink or system settings.
+
+31. Stuck in Guest Session
+Logout and use regular user. Delete guest sessions via TTY or disable guest logins in LightDM/GDM.
+
+32. App Fonts Are Too Small or Blurry
+Enable scaling in display settings or Xresources. For HiDPI screens, use GDK_SCALE or QT_SCALE_FACTOR env vars.
+
+33. Can’t Download Files in Browser
+Check browser download path. Ensure file system isn’t full. Try another browser to rule out app bugs.
+
+34. Alt+Tab Doesn't Switch Windows
+Check keyboard settings. May be overridden by custom shortcuts. Try disabling window compositor and testing again.
+
+35. No Network After Switching Users
+Network may be tied to session. Use nmcli or relogin. Add user to netdev group for permissions.
+
+36. File Can't Be Copied Between Partitions
+Different file systems may cause permission errors. Use sudo cp or ensure both partitions are mounted with write permissions.
+
+37. System Beeps on Every Error
+Disable PC speaker with sudo rmmod pcspkr. Also disable system bell in terminal preferences or DE sound settings.
+
+38. Can't Extract .tar.gz File
+Use:
+
+tar -xvzf file.tar.gz  
+Make sure you’re in the correct directory. GUI extraction tools also work.
+
+39. Desktop Zoom or Rotation Is Locked
+Check accessibility settings. Reset zoom with Ctrl+Alt+8 (on GNOME). Use xrandr to reset rotation.
+
+40. Cannot Open AppImage Files
+Make executable: chmod +x filename.AppImage. Run it with ./filename.AppImage. AppImages may need fuse installed.
+
+41. App in Snap/Flatpak Doesn’t Detect USB
+Some sandboxed apps lack permissions. Use flatpak override or check Snap interface connections. Launch with --device flags if needed.
+
+42. Photos Appear Rotated Incorrectly
+EXIF orientation may be ignored. Use jhead -autorot or exiftran to fix. Image viewers like gThumb or Shotwell read EXIF.
+
+43. LibreOffice Files Open as Read-Only
+Check file permissions and lock file .~lock.filename. Delete lock file if editor crashed previously.
+
+44. Language Settings Don’t Persist
+Set system-wide language in /etc/locale.conf or GUI settings. Regenerate locales with sudo locale-gen.
+
+45. Login Sound Annoying or Loud
+Disable system sounds in “Startup Applications” or sound settings. Remove login sound file from /usr/share/sounds.
+
+46. Can’t Install Fonts via Double Click
+Install via Fonts app or copy to ~/.fonts/. Use fc-cache -fv to refresh font cache. Restart apps to see changes.
+
+47. Camera Doesn’t Work in Apps
+Check with cheese or guvcview. Apps may need permission (flatpak, snap, browser). Try switching camera device.
+
+48. “Command Not Found” Even When App Installed
+App binary may not be in $PATH. Try full path or use alias to fix. Add to .bashrc or .zshrc for persistence.
+
+49. Touchpad Gestures Not Working
+Enable gestures in GNOME Tweaks or install libinput-gestures. Some laptops require updated firmware or kernel support.
+
+50. Can't Change Login Screen Background
+Depends on display manager (GDM, LightDM). Use gsettings or edit theme files. Use tools like gdm-settings or lightdm-gtk-greeter.
+

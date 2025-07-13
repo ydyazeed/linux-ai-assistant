@@ -1,0 +1,599 @@
+1. ls
+Lists the contents of a directory. Use ls to see files and folders in the current directory. ls -l gives a detailed list with permissions and timestamps. ls -a includes hidden files (starting with .). Combine options like ls -lah for full readable info.
+
+2. cd
+Changes the current working directory. cd /path/to/dir moves you into that directory. cd .. goes up one level, and cd ~ returns to the home directory. It works with both absolute and relative paths. Essential for navigating the filesystem.
+
+3. pwd
+Prints the current directory’s full path. Useful when scripting or verifying where you are. It shows absolute paths like /home/user/Documents. No parameters are usually needed. Helps maintain orientation in the terminal.
+
+4. mkdir
+Creates one or more directories. mkdir myfolder creates a new folder in the current location. Use -p to make parent directories as needed (mkdir -p a/b/c). It won’t overwrite existing folders. Great for organizing files quickly.
+
+5. rm
+Deletes files or directories. rm file.txt removes a file, and rm -r folder/ removes a directory recursively. Be cautious: it doesn’t move items to trash. -f forces deletion without confirmation. Very powerful and dangerous if misused.
+
+6. rmdir
+Removes empty directories. It won’t delete directories with files in them. Use rm -r instead if you want to remove non-empty folders. rmdir foldername is the basic usage. Handy for cleaning up structure.
+
+7. cp
+Copies files and directories. cp source.txt destination.txt copies a file. Use -r for copying folders recursively (cp -r folder1 folder2). -v shows what’s being copied. It preserves the original file unless combined with --remove-source-files.
+
+8. mv
+Moves or renames files and directories. mv oldname newname renames, while mv file.txt /folder/ moves it. It replaces existing files if the name already exists. Use -i to prompt before overwriting. Good for organizing files.
+
+9. touch
+Creates new empty files. touch file.txt makes a new text file. It also updates the timestamp of an existing file. Often used in scripting or to prepare placeholders. Quiet and quick command.
+
+10. echo
+Prints text to the terminal or into files. echo "Hello" shows "Hello" on screen. Use echo "data" > file.txt to write to a file. >> appends instead of overwriting. It's often used in scripts.
+
+11. cat
+Concatenates and displays file content. cat file.txt shows its contents. You can also combine files: cat file1 file2 > combined.txt. Use with | (pipe) to pass content to other commands. It's fast and simple.
+
+12. less
+Displays file content one screen at a time. less largefile.txt lets you scroll through big files. Use arrow keys or q to quit. It’s more efficient than cat for large files. Doesn't load the whole file into memory.
+
+13. head
+Shows the first few lines of a file. head file.txt displays the top 10 lines by default. Use -n to specify number of lines (head -n 20 file.txt). Useful for previewing data files or logs. Simple and readable.
+
+14. tail
+Displays the last part of a file. tail file.txt shows the last 10 lines. -n changes how many lines are shown (tail -n 50 file.txt). Use -f to follow logs in real time (tail -f logfile.log). Great for monitoring live logs.
+
+15. find
+Searches for files in a directory tree. find . -name "*.txt" finds all .txt files. Use -type f for files and -type d for directories. It supports complex filtering like by size, date, or permissions. Very powerful for managing files.
+
+16. grep
+Searches for text patterns in files. grep "error" logfile.txt finds lines with "error". Use -i for case-insensitive search and -r to search recursively. grep -n shows line numbers. Ideal for filtering logs or configs.
+
+17. man
+Displays manual pages for commands. man ls shows the manual for ls. Use arrow keys to scroll and q to quit. It’s your go-to for detailed command help. You can search inside with /searchterm.
+
+18. chmod
+Changes file permissions. chmod 755 script.sh gives read, write, and execute permissions. Use symbolic (u+x) or numeric modes. -R applies changes recursively to folders. Helps control who can read/write/execute files.
+
+19. chown
+Changes file ownership. chown user:group file.txt assigns a new owner. Use -R to apply changes to all subfiles and folders. Only root or file owner can run this. Important for permissions in multi-user environments.
+
+20. ps
+Displays active processes. ps shows your current shell processes. ps aux lists all running processes. Combine with grep to search: ps aux | grep python. Useful for debugging or killing stuck programs.
+
+21. top
+Shows real-time system resource usage. top displays CPU, memory, and process activity. Use q to quit and k to kill a process. It updates automatically, unlike ps. Great for monitoring performance.
+
+22. kill
+Terminates processes by PID. kill 1234 sends a termination signal to process 1234. Use -9 to force kill (kill -9 1234). First find PID using ps or top. Useful when apps freeze or misbehave.
+
+23. df
+Shows disk usage of filesystems. df -h displays sizes in human-readable form (GB/MB). It shows mounted devices, usage percentage, and available space. Helps track storage issues. Often used before cleanup tasks.
+
+24. du
+Estimates file/folder sizes. du -sh folder/ shows total size. Use -h for readable sizes and -a to include files. du -d 1 shows usage per subdirectory. Ideal for checking what's eating disk space.
+
+25. history
+Displays command history. history shows recent terminal commands. You can re-run a command using !number (!105 repeats command 105). Use history -c to clear the list. Helpful for recalling or automating tasks.
+
+26. whoami
+Prints the username of the current user. It’s useful in multi-user systems to confirm your identity. Simply run whoami without any parameters. Often used in scripts or when switching users. Very straightforward but essential.
+
+27. uname
+Displays system information. uname -a shows all details like kernel name, version, machine type, and OS. Use -r for just the kernel version. It helps in checking compatibility or debugging kernel-related issues. Works across Unix-like systems.
+
+28. hostname
+Shows or sets the system’s hostname. hostname displays the current name, and hostname newname sets a new one (admin required). Use -I to see the IP address assigned. It’s used in networking or scripting scenarios. Hostname changes may require restart.
+
+29. date
+Prints or sets the system date and time. date by itself shows the current date and time. You can format output using +%Y-%m-%d, etc. Use sudo date -s "2025-07-09 13:00" to set it. It’s also useful in scripting log timestamps.
+
+30. cal
+Displays a calendar. cal shows the current month by default. Use cal 2025 to see the whole year or cal 7 2025 for a specific month. It’s a small utility for planning or checking days. Simple but handy.
+
+31. clear
+Clears the terminal screen. Run clear to remove all visible command output. It doesn’t delete history—just cleans up your view. Especially useful in long sessions or when presenting. Works in almost all shells.
+
+32. alias
+Creates a shortcut for commands. alias ll='ls -la' sets up ll as a shorthand. View all aliases with alias. These are session-based unless added to .bashrc or .zshrc. Helps improve productivity by shortening long commands.
+
+33. unalias
+Removes an alias. unalias ll deletes the ll shortcut. Use -a to remove all aliases in the current session. It’s often used in troubleshooting or debugging. Handy when aliases interfere with expected command behavior.
+
+34. wget
+Downloads files from the web. wget http://example.com/file.zip downloads the file. Use -O to rename the output and -c to continue interrupted downloads. It supports HTTP, HTTPS, and FTP. Perfect for automated downloads in scripts.
+
+35. curl
+Transfers data from or to a server using many protocols. curl http://example.com fetches the webpage. Use -o to save output and -L to follow redirects. It supports APIs, file uploads, and headers. More powerful and flexible than wget.
+
+36. scp
+Securely copies files between systems over SSH. scp file.txt user@host:/path/ uploads a file. Use -r to copy folders recursively. Requires SSH access on the target machine. Great for remote file transfers.
+
+37. ssh
+Connects to remote machines securely. ssh user@host opens a terminal on the remote system. You can run commands directly or enter interactive mode. Add -i keyfile to use SSH keys. Core tool for sysadmins and developers.
+
+38. ping
+Checks connectivity to a host. ping google.com sends packets and shows response time. Use -c to limit packet count (ping -c 4 host). Helps diagnose network issues. Use Ctrl+C to stop continuous ping.
+
+39. traceroute
+Shows the path packets take to a destination. traceroute google.com lists all hops. It helps identify where delays or failures occur. May require installing traceroute on some systems. Similar to ping, but with more detail.
+
+40. netstat
+Displays network connections, routing tables, and interfaces. Use netstat -tuln to see listening ports. -a shows all sockets; -p adds process info. It helps diagnose network or firewall issues. Deprecated in favor of ss, but still widely used.
+
+41. ss
+A modern alternative to netstat. ss -tuln lists open TCP/UDP ports. Faster and more accurate than netstat. Use ss -p to see process details. Essential for diagnosing connection issues.
+
+42. ifconfig
+Displays or configures network interfaces. ifconfig shows IP addresses and MAC addresses. Use ifconfig eth0 down or up to disable or enable interfaces. It’s being replaced by ip in newer systems. Still useful in legacy setups.
+
+43. ip
+Modern command to manage networking. ip a shows IP addresses, ip r shows routes. Use ip link set eth0 up to bring up an interface. It replaces ifconfig and route. Highly recommended for all networking tasks.
+
+44. df
+Shows disk space usage. df -h gives sizes in human-readable format. It shows how much space is used and available on mounted filesystems. Useful before backups or installations. -T adds file system type info.
+
+45. du
+Estimates file or folder sizes. du -sh folder/ gives summary size. Use -a to include files and -d 1 for depth. Helps locate large files or folders. Combine with sort for disk usage analysis.
+
+46. mount
+Attaches a filesystem to a mount point. mount /dev/sdb1 /mnt/usb mounts a device. Use -t to specify filesystem type. mount without args lists current mounts. Requires root permissions.
+
+47. umount
+Detaches a mounted filesystem. umount /mnt/usb safely removes the device. Make sure it’s not in use. Use -l for lazy unmount. Prevents data loss when removing external drives.
+
+48. lsblk
+Lists block devices in tree format. Shows disks, partitions, and mount points. Useful for identifying device names like /dev/sda. lsblk -f shows file system type. Often used before mounting drives.
+
+49. blkid
+Displays UUIDs and file system types for block devices. Run it to get info for /etc/fstab entries. Helps identify external drives. Requires root to show full output. Useful in disk management.
+
+50. fdisk
+Interactive disk partitioning tool. fdisk /dev/sda opens the partition table. Use m for help inside the tool. Can create, delete, or list partitions. Essential for managing physical disks.
+
+51. parted
+A powerful disk partitioning tool. parted /dev/sda starts the interactive mode. Supports GPT and MBR partition tables. Useful for large disk support and scripting. Use print to view existing partitions.
+
+52. mkfs
+Creates a filesystem on a partition. mkfs.ext4 /dev/sda1 formats a partition with ext4. Replace ext4 with other formats like xfs or vfat. Warning: this erases all data on the partition. Used after partitioning with fdisk or parted.
+
+53. fsck
+Checks and repairs filesystem errors. Run as fsck /dev/sda1 on an unmounted filesystem. Use -y to auto-confirm fixes. Essential for recovery when disk issues occur. Don’t use it on mounted filesystems to avoid corruption.
+
+54. sync
+Flushes file system buffers to disk. sync ensures that changes are physically written. Useful before unplugging USB drives. It runs silently and safely. Often used in scripts or after cp/dd.
+
+55. dd
+Copies and converts raw data. dd if=/dev/sda of=backup.img creates a disk image. Use bs=4M for faster block transfers. Be extremely cautious: wrong usage can wipe disks. Very useful for backup, cloning, or bootable media.
+
+56. tar
+Archives multiple files into one file. tar -cvf archive.tar folder/ creates an archive. Add -z for gzip compression (.tar.gz). -xvf extracts archives. Widely used for backups and transfers.
+
+57. gzip
+Compresses files using the .gz format. gzip file.txt replaces it with file.txt.gz. Use -d or gunzip to decompress. Saves storage but works on individual files. Combine with tar for full-folder compression.
+
+58. unzip
+Extracts .zip archives. unzip archive.zip extracts it to the current directory. Use -d dir/ to specify a destination. It's useful for handling ZIP files from Windows or downloads. Supports password-protected files too.
+
+59. zip
+Compresses files into a .zip archive. zip archive.zip file1 file2 creates an archive. Use -r to include directories recursively. Compatible across platforms. Good for quick, cross-system packaging.
+
+60. locate
+Finds files quickly using an indexed database. locate filename shows matching paths. Requires updatedb to refresh the database. Faster than find, but may be outdated. Very convenient for casual searching.
+
+61. updatedb
+Updates the database used by locate. Usually requires sudo (sudo updatedb). Run it to keep locate accurate. It indexes all files and folders based on configuration. Often scheduled via cron.
+
+62. which
+Shows the path of an executable. which python returns /usr/bin/python. It searches directories listed in the PATH environment variable. Useful to verify which version is being run. Fast and simple.
+
+63. whereis
+Finds the location of binaries, source, and man pages. whereis ls may show /bin/ls /usr/share/man/man1/ls.1.gz. More thorough than which. Good for troubleshooting or locating missing docs. Doesn’t search user-created paths deeply.
+
+64. apt
+Advanced Package Tool for Debian-based systems. apt install package installs a package, apt update refreshes sources. Use apt upgrade to update installed software. Requires sudo. It's a modern wrapper for apt-get.
+
+65. apt-get
+Low-level command-line package manager. apt-get install package installs software. Use apt-get remove package to uninstall. apt-get update and apt-get upgrade keep your system up to date. Still widely used in scripts.
+
+66. yum
+Package manager for Red Hat-based systems. yum install package installs software. Use yum update to update all packages. yum remove package uninstalls them. Deprecated in favor of dnf on newer systems.
+
+67. dnf
+Modern replacement for yum. Works similarly: dnf install package, dnf update, dnf remove. Supports better dependency resolution and speed. Used on Fedora, CentOS 8+, and RHEL 8+. More user-friendly and scriptable.
+
+68. pacman
+Package manager for Arch Linux. pacman -S package installs, -R removes, -Syu updates system. Very fast and lightweight. Maintains a local cache of downloaded packages. Uses binary packages compiled for Arch.
+
+69. snap
+Installs and manages Snap packages. snap install package gets apps with all dependencies bundled. Use snap list to view installed snaps. Snaps work across distributions. Useful for quickly deploying applications.
+
+70. flatpak
+Manages containerized desktop apps. flatpak install installs applications, flatpak run launches them. It uses sandboxing for safety. Requires Flatpak runtime. Useful for universal app installation.
+
+71. service
+Controls system services. service nginx start starts a service, stop, restart, or status control it. Works on older systems using SysV init. Still useful in scripts for compatibility. On newer systems, use systemctl.
+
+72. systemctl
+Manages services with systemd. systemctl start nginx, systemctl status sshd, and enable/disable for startup settings. Use list-units to see services. Requires root privileges. Essential for modern Linux management.
+
+73. journalctl
+Views logs managed by systemd. journalctl shows system logs, journalctl -u nginx filters by service. Add -b for current boot, and -f to follow. Replaces older log tools like dmesg. Very useful for debugging.
+
+74. dmesg
+Prints kernel message buffer. dmesg shows boot and hardware logs. Use dmesg | grep usb to filter. Helpful for diagnosing driver or hardware detection issues. Often run as root for full access.
+
+75. reboot
+Restarts the system. Simply run reboot, or use sudo reboot. Waits for processes to exit safely before restarting. Use cautiously in production environments. Works across distributions.
+
+76. shutdown
+Shuts down or reboots the system. Use shutdown now to power off immediately, or shutdown -r now to reboot. You can also schedule it with shutdown +10. It alerts logged-in users before shutdown. Needs sudo privileges.
+
+77. halt
+Stops all CPU functions and halts the system. halt is often used in embedded systems or for debugging. It doesn't power off unless explicitly set. Use sudo halt for access. Replaced by systemctl in modern distros.
+
+78. poweroff
+Powers down the system. Equivalent to shutdown -h now. sudo poweroff stops all services and turns off the machine. It’s cleaner than unplugging a device. Recommended for remote shutdowns.
+
+79. passwd
+Changes the password for a user. passwd by itself changes your password; passwd username changes another's (admin only). It prompts for current and new passwords. Use strong passwords for security. Critical for managing user access.
+
+80. adduser
+Adds a new user interactively. sudo adduser john creates a user and sets up home directory, password, and groups. It's more user-friendly than useradd. Prompts you for all required info. Common in Debian-based systems.
+
+81. useradd
+Adds a new user with more control. sudo useradd -m -s /bin/bash john creates a user with home and shell. Doesn’t prompt—ideal for scripting. You must manually set password with passwd. Preferred in automated environments.
+
+82. deluser
+Removes a user account. sudo deluser john deletes the user but keeps files unless --remove-home is used. Works in Debian systems. Easier to use than userdel. Helps manage system access.
+
+83. userdel
+Deletes a user account. sudo userdel username removes the user. Use -r to remove the home directory too. It's a low-level command for user management. Often used in scripts or by sysadmins.
+
+84. groupadd
+Creates a new user group. sudo groupadd developers sets up a new group. You can then assign users with usermod -aG. Useful for permissions management. Groups help control access to files and services.
+
+85. groupdel
+Deletes a user group. sudo groupdel developers removes the group. Ensure no users rely on the group before deletion. Helps clean up unused roles. Requires caution to avoid breaking permissions.
+
+86. usermod
+Modifies a user account. sudo usermod -aG sudo john adds john to the sudo group. Use -s to change shell, -d to change home. It’s a powerful tool for updating user settings. Requires root privileges.
+
+87. su
+Switches to another user account. su by itself switches to root if available. su - username loads the full environment. You need the target user’s password. Useful for administrative tasks.
+
+88. sudo
+Runs a command as another user, typically root. sudo command runs that command with elevated privileges. It logs each use for audit purposes. Users must be in the sudoers group. Safer than using su.
+
+89. crontab
+Schedules recurring tasks. crontab -e edits the current user’s cron jobs. Jobs follow a 5-field time pattern before the command. Use crontab -l to list jobs. Perfect for automation like backups or cleanups.
+
+90. at
+Schedules a one-time task. echo "shutdown -h now" | at 11:00 shuts down the system at 11:00. Use atq to view and atrm to remove jobs. Unlike cron, it’s for single future events. May require installing at first.
+
+91. jobs
+Lists background jobs in the current shell. Useful after suspending a job with Ctrl+Z. jobs shows stopped or running tasks. Combine with fg or bg to resume them. Works only within the same session.
+
+92. fg
+Brings a background or stopped job to the foreground. Use fg %1 to resume job 1. It's helpful after using Ctrl+Z to pause a job. Only works in the current shell. Essential for job control.
+
+93. bg
+Resumes a suspended job in the background. bg %1 restarts job 1 without blocking the terminal. Use with jobs and fg for multitasking. Good for running long tasks while continuing work. Doesn’t work across sessions.
+
+94. nohup
+Runs a command immune to hangups. nohup ./script.sh & runs it in background and detaches from terminal. Output goes to nohup.out by default. Useful for running long processes after logout. Common in remote scripting.
+
+95. screen
+Creates terminal multiplexing sessions. Run screen to start, then Ctrl+A D to detach. Use screen -r to reattach. Useful for persistent terminal sessions. Great for remote jobs or long processes.
+
+96. tmux
+Terminal multiplexer like screen, but more modern. tmux starts a session; Ctrl+B D detaches it. Reattach with tmux attach. Supports windows, panes, and scripting. Ideal for developers and sysadmins.
+
+97. alias
+Creates custom shortcuts for commands. alias gs='git status' saves typing. Only lasts for current session unless added to .bashrc. Use alias alone to list all. Improves efficiency significantly.
+
+98. unalias
+Removes a defined alias. unalias gs deletes the gs shortcut. Use unalias -a to remove all. Helps when a shortcut interferes. Essential for troubleshooting.
+
+99. export
+Sets environment variables for the current shell session. export PATH=$PATH:/new/path appends to the path. These variables affect subprocesses. Add to .bashrc for persistence. Critical for configuration and scripting.
+
+100. env
+Displays the current environment variables. Just type env to see all of them. You can also use it to run a command with a modified environment (env VAR=value command). Useful in scripts and debugging. Works in all Unix-like shells.
+
+101. printenv
+Prints environment variables to the terminal. printenv shows all variables or printenv VAR_NAME displays a specific one. Useful for checking variables like PATH, HOME, or USER. It’s read-only—use export to set values. Handy for debugging or scripting.
+
+102. source
+Executes commands from a file in the current shell. source ~/.bashrc reloads your shell configuration without restarting. It’s the same as . (dot command): . ~/.bashrc. Often used to apply changes made to environment files. A critical tool when working with shell scripts.
+
+103. basename
+Extracts the filename from a full path. basename /home/user/file.txt returns file.txt. You can also strip extensions with a second argument. Useful in scripts that process filenames. Helps simplify paths.
+
+104. dirname
+Extracts the directory portion of a path. dirname /home/user/file.txt returns /home/user. It’s the complement to basename. Useful when scripting and needing the parent folder. Doesn’t resolve symbolic links or relative paths.
+
+105. xargs
+Builds and executes command lines from input. cat list.txt | xargs rm removes all files listed in list.txt. It handles whitespace-separated inputs well. Use -n to limit arguments per command. Great for batch operations with find, grep, etc.
+
+106. seq
+Generates sequences of numbers. seq 1 5 outputs 1 2 3 4 5. Use seq 1 2 9 for custom steps. Often used in loops or creating numbered files. Combine with xargs or for loops.
+
+107. yes
+Outputs a string repeatedly until stopped. yes | command auto-confirms prompts (like yes | apt install package). Use yes n to simulate constant “no” responses. Useful for scripting or stress testing. Use Ctrl+C to stop.
+
+108. watch
+Runs a command repeatedly at fixed intervals. watch -n 2 date shows the time every 2 seconds. Use -d to highlight changes between updates. Great for monitoring resource usage, logs, or process status. Press Ctrl+C to stop.
+
+109. tee
+Reads input and writes it to both stdout and a file. ls -l | tee output.txt displays and saves the output. Use -a to append instead of overwrite. Useful for logging while viewing output. Helpful in pipelines.
+
+110. stat
+Displays detailed information about a file. stat file.txt shows permissions, size, modification time, and inode. It’s more informative than ls -l. Helps in auditing or debugging file issues. Works on files and directories.
+
+111. file
+Determines the type of a file. file myfile might return “ASCII text” or “JPEG image data.” Useful when extensions are missing or misleading. Helps detect binaries, executables, or corrupted files. Works on any file.
+
+112. diff
+Compares the content of two files line by line. diff file1.txt file2.txt shows differences between them. Use -u for unified format (diff -u). It’s used in patch creation and code reviews. Shows what's added, changed, or deleted.
+
+113. cmp
+Compares two files byte by byte. cmp file1 file2 outputs the first difference it finds. Faster and simpler than diff for binary files. Use -l to list all differing bytes. Ideal for exact file comparison.
+
+114. comm
+Compares two sorted files line by line. comm file1 file2 shows lines unique to each and common lines. Use -1, -2, or -3 to suppress output columns. Great for checking differences in sorted lists. Files must be sorted for accurate results.
+
+115. sort
+Sorts lines in text files. sort file.txt outputs lines alphabetically. Use -n for numeric, -r for reverse, and -u for unique sorting. Combine with uniq for deduplication. Works well with pipelines.
+
+116. uniq
+Removes duplicate lines in sorted input. sort file.txt | uniq filters unique lines. Use -c to count occurrences. -d shows only duplicates. Helps clean up datasets and logs.
+
+117. tr
+Translates or deletes characters from input. tr a-z A-Z converts lowercase to uppercase. Use -d to delete characters, like tr -d '\n' to remove newlines. It’s fast and useful in pipelines. Doesn’t support regex.
+
+118. cut
+Extracts sections from lines of text. cut -d':' -f1 /etc/passwd gets the first field from colon-separated lines. Use -c for character positions. Useful in CSV, logs, and structured text. Precise and efficient.
+
+119. split
+Breaks large files into smaller chunks. split -l 1000 file.txt splits it into 1000-line parts. Use -b for byte-sized chunks. It names chunks like xaa, xab, etc. Helps handle large datasets.
+
+120. head
+Displays the first lines of a file. head file.txt shows the top 10 lines by default. Use -n to customize (head -n 20). Ideal for previewing logs or data files. Lightweight and fast.
+
+121. tail
+Shows the last lines of a file. tail file.txt displays the bottom 10 lines. Add -n for a specific count. Use -f to follow a growing file live (tail -f logfile). Essential for monitoring logs.
+
+122. wc
+Counts words, lines, and characters. wc file.txt gives total lines, words, and bytes. Use -l, -w, or -c for individual stats. Helps in text analysis or debugging. Works on stdin too.
+
+123. nl
+Adds line numbers to file content. nl file.txt outputs lines with numbers. Use -b to control numbering format. Great for reviewing long files. It’s cleaner than cat -n.
+
+124. basename
+Prints the file name from a full path. basename /home/user/data.txt returns data.txt. Can strip suffix too, e.g. basename file.txt .txt → file. Useful for scripting. Simplifies path handling.
+
+125. dirname
+Gets the directory from a full path. dirname /home/user/data.txt returns /home/user. Complements basename in file management. Doesn’t follow symlinks or check existence. Handy in shell scripts.
+
+126. ps aux
+Displays detailed info about all running processes. ps aux shows user, CPU usage, memory, PID, and command. Combine with grep to find specific processes (ps aux | grep nginx). It’s non-interactive, unlike top. Useful for process inspection and scripting.
+
+127. pkill
+Kills processes by name. pkill firefox ends all firefox processes. Use -f to match full command lines, or -u username to filter by user. More convenient than kill when you don’t know the PID. Use cautiously to avoid killing unintended tasks.
+
+128. killall
+Kills all processes by exact name. killall apache2 stops all apache2 instances. It’s similar to pkill, but stricter on matching names. Use -i for confirmation and -v for verbose output. Effective for stopping multiple copies of the same app.
+
+129. nice
+Starts a process with adjusted priority. nice -n 10 script.sh runs with lower CPU priority. Range is from -20 (highest) to 19 (lowest). Helps prevent background tasks from hogging resources. Doesn’t affect already running processes.
+
+130. renice
+Changes the priority of a running process. renice -n 5 -p 1234 adjusts priority of PID 1234. Requires sudo for lowering (increasing priority). Useful when live performance tuning is needed. It affects scheduling behavior.
+
+131. uptime
+Shows how long the system has been running. It includes current time, up time, users, and load average. Run uptime with no arguments. Helps monitor system stability. Often used in troubleshooting or reports.
+
+132. hostnamectl
+Manages the system hostname on systemd systems. hostnamectl set-hostname newname changes the hostname. Use hostnamectl to view current hostname info. Also shows OS and kernel version. More modern than hostname.
+
+133. timedatectl
+Manages system date and time settings. Use timedatectl set-time '2025-07-09 10:00:00' to set time. timedatectl list-timezones lists timezones, and set-timezone sets one. Requires root privileges. Works with systemd.
+
+134. hwclock
+Reads or sets the hardware clock. hwclock -r reads it, hwclock -w sets it from the system time. Useful for dual-boot setups. Ensures time stays correct across reboots. Requires root access.
+
+135. free
+Displays memory usage statistics. free -h shows RAM and swap in human-readable format. See total, used, free, and cache memory. Useful for diagnosing memory pressure. Often used with top or vmstat.
+
+136. vmstat
+Reports memory, CPU, and IO performance. vmstat 2 updates stats every 2 seconds. Helps identify bottlenecks like high swap or blocked processes. Useful for real-time monitoring. Lightweight and scriptable.
+
+137. iostat
+Shows CPU and disk IO stats. iostat -x 2 gives extended stats every 2 seconds. Helps identify slow disks or heavy IO load. Part of the sysstat package. Ideal for performance tuning.
+
+138. mpstat
+Displays per-CPU usage. mpstat -P ALL 1 shows each core’s usage every second. Use it to analyze CPU balance or contention. Also part of sysstat. Good for multi-core monitoring.
+
+139. top -n 1
+Runs top command once and exits. Useful in scripts or snapshot monitoring. Shows top resource-consuming processes. Combine with head or grep for filtering. More script-friendly than interactive top.
+
+140. htop
+Interactive process viewer (like top, but better). Shows CPU cores, memory bars, and process tree. Use arrows to navigate and F9 to kill. Run htop directly (may need to install). Very popular among sysadmins.
+
+141. lsof
+Lists open files and processes using them. lsof shows file descriptors, sockets, and libraries. lsof -i :80 lists processes using port 80. Useful for debugging file locks or port usage. Requires root for full output.
+
+142. strace
+Traces system calls made by a process. strace ls shows every syscall ls makes. Helps debug failures or permission errors. Use -p PID to attach to running processes. Outputs a lot—redirect to files when needed.
+
+143. tcpdump
+Captures network packets for analysis. tcpdump -i eth0 listens on interface eth0. Use -w file.pcap to save for Wireshark. Requires root and knowledge of protocols. Powerful for network diagnostics.
+
+144. iptables
+Configures the firewall. iptables -L lists rules, iptables -A INPUT -p tcp --dport 22 -j ACCEPT allows SSH. It’s powerful but complex. Rules are not persistent unless saved. Being replaced by nftables in newer systems.
+
+145. nft
+Replaces iptables in modern Linux systems. nft list ruleset shows active firewall rules. Syntax is cleaner and supports atomic changes. Use nft add rule to add rules. Needs root and nftables installed.
+
+146. ufw
+Uncomplicated Firewall frontend for iptables. ufw enable, ufw allow 22, and ufw status are common commands. Easier than raw iptables. Ideal for simple server setups. Works best on Ubuntu-based systems.
+
+147. fail2ban
+Protects services from brute-force attacks. It monitors logs and bans IPs using iptables. fail2ban-client status shows current bans. Configure via /etc/fail2ban/jail.conf. Commonly used with SSH and web servers.
+
+148. rsync
+Efficiently syncs files/directories. rsync -av source/ destination/ preserves permissions and timestamps. Use -z to compress during transfer. Great for backups and remote syncs. Works locally or over SSH.
+
+149. scrot
+Takes screenshots from the command line. scrot captures full screen, scrot -s lets you select an area. Saves to current directory by default. Lightweight and scriptable. May need to install on minimal systems.
+
+150. xclip
+Accesses clipboard via command line. echo "text" | xclip -selection clipboard copies to clipboard. Use xclip -o to paste. Useful for headless systems or scripting. Requires X11 environment.
+
+151. xsel
+Command-line access to the X11 clipboard. echo "text" | xsel --clipboard copies to the clipboard. Use xsel --clipboard --output to paste. Works like xclip but offers more flexibility in script automation. Useful in graphical environments with X.
+
+152. notify-send
+Sends desktop notifications. notify-send "Title" "Message" creates a pop-up. Works in systems with notification daemons (like GNOME). Great for alerts in scripts. Doesn’t work in minimal CLI-only environments.
+
+153. zenity
+Creates GUI dialogs from shell scripts. zenity --info --text="Backup completed" shows a message box. Supports input boxes, file pickers, and progress bars. Ideal for desktop automation. Must be installed on most systems.
+
+154. gnome-screenshot
+Captures screenshots in GNOME environments. gnome-screenshot takes a full-screen shot, -a lets you select an area. Use -w for the current window. Saves to Pictures folder by default. Useful for automating screenshot tasks.
+
+155. shred
+Securely deletes files by overwriting contents. shred -u file.txt overwrites and then deletes the file. Use -n to set the number of overwrite passes. Ideal for sensitive data. Safer than rm for privacy.
+
+156. watch -d
+Highlights differences between screen updates. watch -d df -h monitors disk space and highlights changes. Useful for seeing real-time shifts in output. Combines well with system monitoring commands. Press Ctrl+C to quit.
+
+157. time
+Measures how long a command takes to run. time ls shows real, user, and sys time. Helps optimize scripts or detect performance issues. Available in all shells. Useful for benchmarking.
+
+158. cal -y
+Displays an entire year’s calendar. cal -y shows all 12 months at once. Use cal 2026 for a specific year. Simple, useful for planning and scheduling. Lightweight and doesn’t require GUI.
+
+159. expr
+Evaluates expressions like arithmetic and comparisons. expr 1 + 2 returns 3. Also works with string length, substrings, and pattern matching. Use with backticks or $(...) in scripts. Limited but useful for shell math.
+
+160. bc
+Interactive command-line calculator. Launch with bc, then type math expressions. Supports decimals, complex operations, and scripting with echo "2^10" | bc. Use -l for standard math library. Powerful for precision tasks.
+
+161. factor
+Shows the prime factorization of a number. factor 60 returns 2 2 3 5. Quick tool for math or number theory. Works only on integers. Great for simple calculations.
+
+162. hostname -I
+Displays the machine’s IP address(es). More reliable than hostname alone. Use in scripts to detect network setup. Returns one or more IPs in space-separated form. Does not show loopback (127.0.0.1).
+
+163. who
+Shows who is logged in. who displays usernames, terminals, and login times. Helps check active sessions. Combine with w for more detail. Lightweight and available on all systems.
+
+164. w
+Displays who is logged in and what they are doing. w includes uptime, load average, and active processes. More detailed than who. Useful for monitoring shared systems. Shows idle times too.
+
+165. last
+Shows login history from /var/log/wtmp. last lists when users logged in and from where. Use last reboot to see last boot times. Helps audit system access. Requires log file presence.
+
+166. users
+Shows currently logged-in users. users returns a space-separated list. Useful in multi-user environments. Simpler than who or w. Great for quick checks.
+
+167. id
+Displays user and group ID information. id shows UID, GID, and group memberships. Use id username for another user. Helpful for permission debugging. Fast and straightforward.
+
+168. groups
+Lists groups a user belongs to. groups shows your own groups, or groups username shows others’. Helps verify access and roles. Important for file permissions. Built into most distributions.
+
+169. getent
+Fetches entries from databases like passwd, group, hosts. getent passwd username shows user info. getent hosts example.com resolves DNS. Useful in networked environments. Works with NSS (Name Service Switch).
+
+170. lsmod
+Lists loaded kernel modules. Helps debug hardware, drivers, or kernel configuration. Run lsmod to view module name, size, and usage count. Combine with modprobe to manage modules. Needs no arguments.
+
+171. modprobe
+Loads or removes kernel modules. sudo modprobe module_name loads a module; -r removes it. Useful for adding support for hardware on demand. Manages dependencies automatically. Requires root.
+
+172. insmod
+Inserts a module into the kernel manually. sudo insmod module.ko loads a compiled module. Use only if modprobe fails. Doesn’t resolve dependencies. Used mostly for debugging or testing.
+
+173. rmmod
+Removes a kernel module. sudo rmmod module_name unloads it from the kernel. Ensure it's not in use or it will fail. Safer to use modprobe -r. Useful during driver testing.
+
+174. depmod
+Generates module dependency list. Run sudo depmod after adding new kernel modules. It updates modules.dep file used by modprobe. Often part of driver installation steps. Needs root access.
+
+175. uname -r
+Displays the current kernel version. Useful for checking compatibility or debugging. uname -r returns strings like 5.15.0-92-generic. Works on all Linux distributions. Essential for low-level troubleshooting.
+
+176. journalctl -xe
+Displays the end of the system log with errors and explanations. journalctl -xe is useful after a failed service start. It provides timestamped logs and hints about issues. Works only on systemd systems. Great for deep troubleshooting.
+
+177. systemd-analyze
+Shows system boot performance stats. systemd-analyze reveals total boot time and breakdown. Use systemd-analyze blame to see which services slowed boot. Great for performance optimization. Requires systemd.
+
+178. lsusb
+Lists USB devices connected to your system. lsusb outputs vendor IDs, product names, and ports. Helpful for diagnosing USB issues. Use -v for detailed information. Useful with external peripherals.
+
+179. lspci
+Lists PCI devices like GPUs, sound cards, and network adapters. lspci provides hardware vendor and type. Use -v or -nn for verbose or numerical info. Ideal for driver debugging. Pre-installed on most systems.
+
+180. dmidecode
+Shows hardware info from BIOS. sudo dmidecode reveals system model, serial numbers, CPU details, etc. Output is long and sectioned by type. Good for inventory and diagnostics. Requires root.
+
+181. hdparm
+Displays and configures SATA/IDE drive parameters. sudo hdparm -I /dev/sda shows hardware details. Use -t for performance test (read speed). Be careful with write/cache flags. Excellent for drive tuning.
+
+182. smartctl
+Monitors SMART status of hard drives. sudo smartctl -a /dev/sda shows health, error logs, and temp. Use -t short or -t long for tests. Helps predict hardware failure. Part of smartmontools.
+
+183. blkdiscard
+Securely discards all data blocks on a device (SSD). sudo blkdiscard /dev/sdX erases all data. Faster than formatting, but irreversible. Used before reusing or disposing of drives. Works only on SSDs and supported file systems.
+
+184. mount -o loop
+Mounts an ISO or image file as a filesystem. mount -o loop image.iso /mnt/iso makes the image browsable. Requires a mount point and root. Useful for accessing disk images. Unmount with umount /mnt/iso.
+
+185. losetup
+Manages loop devices. sudo losetup -fP image.img attaches a loopback device to a file. Use losetup -a to list loop devices. Helps in working with disk images. Often used with mount.
+
+186. ulimit
+Controls user limits for processes, file sizes, and open files. ulimit -n shows the max open file descriptors. Use ulimit -c unlimited to allow core dumps. Temporary unless set in config files. Helps control system resources.
+
+187. sysctl
+Views or modifies kernel parameters. sysctl -a lists all, sysctl net.ipv4.ip_forward=1 enables IP forwarding. Useful for tuning performance and networking. Changes are runtime unless saved in /etc/sysctl.conf. Needs root for most actions.
+
+188. getconf
+Gets system configuration variables. getconf LONG_BIT returns 32 or 64 based on architecture. Use it to query limits or paths like getconf PATH. Useful in cross-platform scripting. Doesn’t require root.
+
+189. chroot
+Changes the root directory for a process. sudo chroot /mnt/myroot starts a shell with a new root. Used in recovery or OS installation environments. Needs a fully configured minimal system inside the directory. Requires caution to avoid breaking isolation.
+
+190. nslookup
+Queries DNS records for a domain. nslookup example.com returns IP addresses. Use set type=MX to get mail records. Great for troubleshooting DNS resolution. Works even if dig is unavailable.
+
+191. dig
+Flexible DNS query tool. dig example.com fetches DNS records. Use +short for concise output. Preferred by network professionals. Shows detailed headers and response times.
+
+192. host
+Simple DNS lookup command. host example.com resolves domain to IP. Use host -t MX example.com to find mail records. Shorter output than dig. Lightweight and easy to use.
+
+193. ping6
+Pings IPv6 addresses. ping6 ipv6.google.com tests IPv6 connectivity. Use -c to limit the number of packets. Good for dual-stack networks. Often installed as part of iputils.
+
+194. traceroute6
+IPv6 version of traceroute. traceroute6 ipv6.google.com traces path to an IPv6 host. Shows hops, delays, and packet loss. Used to debug long or slow IPv6 routes. May need to be installed separately.
+
+195. ip -6
+Manages IPv6 network settings. ip -6 addr lists IPv6 addresses. Use ip -6 route to see IPv6 routes. Replaces older tools like ifconfig for IPv6. Standard on all modern distros.
+
+196. ss -6
+Shows active IPv6 sockets. ss -6 -tuln displays listening IPv6 TCP/UDP ports. Great for checking dual-stack service bindings. Works faster than netstat. Supports filtering by protocol and port.
+
+197. watch free -h
+Live monitor for memory usage. watch free -h updates memory stats every 2 seconds. Great for observing system performance. Use -n for interval. Combine with grep to track swap usage.
+
+198. tldr
+Simplified man pages for quick help. tldr tar gives practical examples of usage. Requires installation (npm install -g tldr or apt install tldr). Great for beginners and faster than man. Works offline once cached.
+
+199. alias ll='ls -alF'
+Common shortcut to list files with details and indicators. ll becomes an easier version of ls -alF. Add it to .bashrc or .zshrc for permanence. Improves productivity in the terminal. Widely used among developers.
+
+200. history
+Displays the command history. history shows past commands with line numbers. Use !number to rerun a command. Combine with grep to find specific entries (history | grep ssh). Helpful for recalling and reusing commands.
